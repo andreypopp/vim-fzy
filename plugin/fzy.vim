@@ -157,10 +157,7 @@ try
     throw v:exception
   endtry
 
-  if !has_key(dict, 'source') && !empty($FZY_DEFAULT_COMMAND)
-    let temps.source = tempname()
-    call writefile(split($FZY_DEFAULT_COMMAND, "\n"), temps.source)
-    let dict.source = (empty($SHELL) ? 'sh' : $SHELL) . ' ' . s:shellesc(temps.source)
+  if !has_key(dict, 'source')
   endif
 
   if has_key(dict, 'source')
@@ -176,18 +173,19 @@ try
       throw 'invalid source type'
     endif
   else
-    let prefix = ''
+    s:error('Missing "source" configuration')
+    return 1
   endif
 
   let command = prefix.fzy_exec.' '.optstr
 
   if has('nvim')
     return s:execute_term(dict, command, temps.result, temps)
+  else
+    let lines = s:execute(dict, command, temps.result, temps)
+    call s:callback(dict, lines)
+    return lines
   endif
-
-  let lines = s:execute(dict, command, temps.result, temps)
-  call s:callback(dict, lines)
-  return lines
 finally
   let &shell = oshell
 endtry
@@ -524,8 +522,8 @@ function! s:bufopen(lines)
   if len(a:lines) < 1
     return
   endif
-  let b = matchstr(a:lines[0], '\[\zs[0-9]*\ze\]')
-  execute 'buffer' b
+  let l:b = matchstr(a:lines[0], '\[ *\zs[0-9]*\ze\]')
+  execute 'buffer' l:b
 endfunction
 
 function! s:format_buffer(b)
