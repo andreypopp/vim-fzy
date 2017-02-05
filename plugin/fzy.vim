@@ -11,7 +11,7 @@ set cpo&vim
 
 """"" Core
 
-let s:default_layout = { 'down': '~40%' }
+let s:default_layout = { 'window': 'enew' }
 let s:layout_keys = ['window', 'up', 'down', 'left', 'right']
 let s:fzy_executable = 'fzy'
 
@@ -439,9 +439,33 @@ endfunction
 
 """"" Files
 
+function s:fzy_files_resolve_command()
+  if exists('g:fzy_files_command')
+    return g:fzy_files_command
+  elseif executable('ag')
+    return 'ag
+      \ --nocolor
+      \ --hidden
+      \ --ignore .git
+      \ --ignore .svn
+      \ --ignore .hg
+      \ --ignore .DS_Store
+      \ --files-with-matches
+      \ -g ""'
+  elseif executable('find')
+    return 'find .
+      \ -type f
+      \ -print'
+  else
+    s:error('Cannot find a command for FZYFiles (tried ag, find), configure "g:fzy_files_command"')
+  endif
+endfunction
+
+let s:fzy_files_command = s:fzy_files_resolve_command()
+
 function! fzy#files(bang, ...) abort
   let args = copy(a:000)
-  let opts = { 'options': '' }
+  let opts = { 'options': '', 'source': s:fzy_files_command }
   if len(args) && isdirectory(expand(args[-1]))
     let dir = substitute(remove(args, -1), '/*$', '/', '')
     let dir_title = substitute(dir, '\\\(["'']\)', '\1', 'g')
