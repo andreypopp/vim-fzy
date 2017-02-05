@@ -450,7 +450,7 @@ function! fzy#files(bang, ...) abort
   else
     let dir = getcwd()
     let dir_title = pathshorten(dir).'/'
-    let opts.options .= ' --prompt '.shellescape('files at '.dir_title.'> ')
+    let opts.options .= ' --prompt '.shellescape(dir_title)
     let opts.dir = dir
   endif
   let opts.options .= ' '.join(args)
