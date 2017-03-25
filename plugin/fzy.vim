@@ -331,7 +331,7 @@ function! s:execute_term(dict, command, out, temps) abort
       endif
     endif
   endfunction
-  function! fzy.on_exit(id, code)
+  function! fzy.on_exit(id, code, wat)
     if s:getpos() == self.ppos " {'window': 'enew'}
       for [opt, val] in items(self.winopts)
         execute 'let' opt '=' val
